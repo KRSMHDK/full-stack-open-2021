@@ -15,13 +15,13 @@ const NumberForm = ({ person }) => {
   );
 };
 
-const PhoneBookForm = ({ handleChange, handleClick }) => {
+const PhoneBookForm = ({ newName, handleChange, handleClick }) => {
   return (
     <div>
       <h2>Phonebook</h2>
       <form>
         <div>
-          name: <input onChange={handleChange} />
+          name: <input value={newName} onChange={handleChange} />
         </div>
         <div>
           <button onClick={handleClick} type="submit">
@@ -39,11 +39,17 @@ const App = () => {
 
   const handleClick = (event) => {
     event.preventDefault();
-    const person = {
-      name: newName,
-    };
-    setPersons(persons.concat(person));
-    setNewName("");
+
+    if (persons.find((n) => n.name.toLowerCase() === newName.toLowerCase())) {
+      window.alert(`${newName} is already added to phonebook`);
+      setNewName("");
+    } else {
+      const person = {
+        name: newName,
+      };
+      setPersons(persons.concat(person));
+      setNewName("");
+    }
   };
 
   const handleChange = (event) => {
@@ -52,7 +58,11 @@ const App = () => {
 
   return (
     <div>
-      <PhoneBookForm handleChange={handleChange} handleClick={handleClick} />
+      <PhoneBookForm
+        newName={newName}
+        handleChange={handleChange}
+        handleClick={handleClick}
+      />
       <NumberForm person={persons} />
     </div>
   );
