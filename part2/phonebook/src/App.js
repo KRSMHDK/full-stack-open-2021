@@ -1,27 +1,54 @@
 import React, { useState } from "react";
 
-const Part = ({ part }) => {
-  return <div> {part.name}</div>;
+const Filter = ({ newFilter, handleFilterChange }) => {
+  return (
+    <div>
+      filter shown with{" "}
+      <input value={newFilter} onChange={handleFilterChange} />
+    </div>
+  );
 };
 
-const NumberForm = ({ person }) => {
+const Part = ({ part }) => {
+  return (
+    <div>
+      {" "}
+      {part.name} - {part.number}
+    </div>
+  );
+};
+
+const NumberForm = ({ persons, newFilter }) => {
+  const filterPerson = persons.filter((person) =>
+    person.name.toLowerCase().includes(newFilter.toLowerCase())
+  );
+
   return (
     <div>
       <h2>Numbers:</h2>
-      {person.map((p) => (
+      {filterPerson.map((p) => (
         <Part part={p} />
       ))}
     </div>
   );
 };
 
-const PhoneBookForm = ({ newName, handleChange, handleClick }) => {
+const PhoneBookForm = ({
+  newName,
+  newNumber,
+  handleNumberChange,
+  handleNameChange,
+  handleClick,
+}) => {
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h2>add a new</h2>
       <form>
         <div>
-          name: <input value={newName} onChange={handleChange} />
+          name: <input value={newName} onChange={handleNameChange} />
+        </div>
+        <div>
+          number: <input value={newNumber} onChange={handleNumberChange} />
         </div>
         <div>
           <button onClick={handleClick} type="submit">
@@ -36,6 +63,8 @@ const PhoneBookForm = ({ newName, handleChange, handleClick }) => {
 const App = () => {
   const [persons, setPersons] = useState([{ name: "Arto Hellas" }]);
   const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [newFilter, setNewFilter] = useState("");
 
   const handleClick = (event) => {
     event.preventDefault();
@@ -46,24 +75,38 @@ const App = () => {
     } else {
       const person = {
         name: newName,
+        number: newNumber,
       };
       setPersons(persons.concat(person));
       setNewName("");
+      setNewNumber("");
     }
   };
 
-  const handleChange = (event) => {
+  const handleNameChange = (event) => {
     setNewName(event.target.value);
+  };
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value);
+  };
+
+  const handleFilterChange = (event) => {
+    setNewFilter(event.target.value);
   };
 
   return (
     <div>
+      <h2>Phonebook</h2>
+      <Filter newFilter={newFilter} handleFilterChange={handleFilterChange} />
       <PhoneBookForm
         newName={newName}
-        handleChange={handleChange}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
         handleClick={handleClick}
       />
-      <NumberForm person={persons} />
+      <NumberForm persons={persons} newFilter={newFilter} />
     </div>
   );
 };
