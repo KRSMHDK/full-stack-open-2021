@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// const { REACT_APP_MY_ENV } = process.env;
 
 const FindCountries = ({ filter, handleFilter }) => {
   return (
@@ -9,7 +10,7 @@ const FindCountries = ({ filter, handleFilter }) => {
   );
 };
 
-const ShowCountry = ({ country }) => {
+const ShowCountry = ({ weather, country }) => {
   return (
     <div>
       <h2>{country.name}</h2>
@@ -22,35 +23,57 @@ const ShowCountry = ({ country }) => {
         ))}
       </ul>
       <img src={country.flag}></img>
+      <div>Weather in {country.capital}</div>
+      <div>Temperature: {weather.current.temperature} celcius</div>
+      <img src={weather.current.weather_icons[0]} />
+      <div>{weather.current.weather_descriptions[0]}</div>
+      <div>
+        wind: {weather.current.wind_speed} mph direction{" "}
+        {weather.current.wind_dir}{" "}
+      </div>
     </div>
   );
 };
 
-const Result = ({ matches, filter }) => {
-  const resultToShow = matches.filter((match) =>
-    match.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  if (resultToShow.length > 10) {
+const Result = ({ handleCapitalChange, weather, matches, handleFilter }) => {
+  if (matches.length > 10) {
     return <div>Too many matches, specify another filter</div>;
-  } else if (resultToShow.length === 1) {
+  } else if (matches.length === 1) {
+    handleCapitalChange(matches[0].capital);
     return (
       <div>
-        <ShowCountry country={resultToShow[0]} />
+        <ShowCountry weather={weather} country={matches[0]} />
       </div>
     );
   } else {
-    return resultToShow.map((matches) => <div>{matches.name}</div>);
+    return matches.map((matches) => (
+      <div>
+        {matches.name}{" "}
+        <button value={matches.name} onClick={handleFilter}>
+          Show
+        </button>
+      </div>
+    ));
   }
 };
 
 const App = () => {
   const [filter, setFilter] = useState("");
   const [matches, setMatches] = useState([]);
+  const [weather, setWeather] = useState([]);
+  const [capital, setCapital] = useState("New york");
 
   const handleFilter = (event) => {
     setFilter(event.target.value);
   };
+
+  const handleCapitalChange = (capital) => {
+    setCapital(capital);
+  };
+  console.log(weather);
+  const resultToShow = matches.filter((match) =>
+    match.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   useEffect(() => {
     axios.get("https://restcountries.eu/rest/v2/all").then((response) => {
@@ -58,10 +81,26 @@ const App = () => {
     });
   }, []);
 
+  useEffect(() => {
+    axios
+      .get(
+        `http://api.weatherstack.com/current?access_key=${process.env.REACT_APP_MY_ENV}&query=${capital}`
+      )
+      .then((response) => {
+        setWeather(response.data);
+      });
+  }, [capital]);
+
   return (
     <div>
       <FindCountries filter={filter} handleFilter={handleFilter} />
-      <Result matches={matches} filter={filter} />
+      <Result
+        matches={resultToShow}
+        handleFilter={handleFilter}
+        filter={filter}
+        weather={weather}
+        handleCapitalChange={handleCapitalChange}
+      />
     </div>
   );
 };
