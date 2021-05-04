@@ -1,10 +1,15 @@
-import react from "react";
+import React from "react";
 
-const Part = ({ part }) => {
+const Part = ({ part, deletePerson }) => {
   return (
     <div>
       {" "}
-      {part.name} - {part.number}
+      <div>
+        {part.name} - {part.number}
+        <button value={part.id} onClick={deletePerson}>
+          Delete
+        </button>
+      </div>
     </div>
   );
 };
