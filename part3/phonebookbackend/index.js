@@ -54,7 +54,7 @@ app.post("/api/persons", (request, response) => {
 
   if (!body.name || !body.number) {
     return response.status(404).json({
-      error: "the name or number missing",
+      error: "the  number or name missing",
     });
   }
 
