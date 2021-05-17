@@ -37,44 +37,28 @@ app.use(
   })
 );
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-12456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-43555",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendick",
-    number: "04242456",
-  },
-];
-
 app.get("/api/persons", (request, response) => {
   Person.find({}).then((phonebook) => {
     response.json(phonebook);
   });
 });
 
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted" });
-  }
-  next(error);
-};
+app.post("/api/persons", (req, res, next) => {
+  const body = req.body;
 
-app.use(errorHandler);
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
+
+  person
+    .save()
+    .then((savedPerson) => savedPerson.toJSON())
+    .then((savedAndFormattedPerson) => {
+      res.json(savedAndFormattedPerson);
+    })
+    .catch((error) => next(error));
+});
 
 app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id)
@@ -93,23 +77,8 @@ const generateId = () => {
   return id;
 };
 
-app.post("/api/persons", (request, response) => {
+app.put("/api/persons", (request, response) => {
   const body = request.body;
-
-  if (!body.name || !body.number) {
-    return response.status(404).json({
-      error: "the  number or name missing",
-    });
-  }
-
-  for (let k in persons) {
-    console.log(persons[k].name);
-    if (persons[k].name === body.name) {
-      return response.status(400).json({
-        error: "name must be unique",
-      });
-    }
-  }
 
   const person = new Person({
     name: body.name,
@@ -117,9 +86,11 @@ app.post("/api/persons", (request, response) => {
     id: generateId(),
   });
 
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.delete("/api/persons/:id", (request, response, next) => {
@@ -136,6 +107,18 @@ app.get("/info", (request, response) => {
     `<div> Phonebook has info for ${persons.length} people  </div> <div>${date}<div>`
   );
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  }
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

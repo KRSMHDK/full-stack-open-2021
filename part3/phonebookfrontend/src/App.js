@@ -52,16 +52,21 @@ const App = () => {
         name: newName,
         number: newNumber,
       };
-      personService.create(person).then((response) => {
-        setMessageType("confirmation");
-        setMessage(`Added ${newName}`);
-        setTimeout(() => {
-          setMessage(null);
-        }, 5000);
-        setPersons(persons.concat(response.data));
-        setNewName("");
-        setNewNumber("");
-      });
+      personService
+        .create(person)
+        .then((response) => {
+          setMessageType("confirmation");
+          setMessage(`Added ${newName}`);
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+          setPersons(persons.concat(response.data));
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
     }
   };
 
@@ -78,7 +83,9 @@ const App = () => {
   };
 
   const deletePerson = (event) => {
-    const id = parseInt(event.target.value);
+    event.preventDefault();
+    console.log(event.target.value);
+    const id = event.target.value;
     const name = persons.find((f) => f.id === id).name;
 
     personService.deletePerson(id).catch((error) => {

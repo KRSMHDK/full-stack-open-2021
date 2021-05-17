@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs/
+content-Type: application/json
+
+{
+"title" : "the bad and the good",
+"author" : "Sir markus",
+"url" : "www.amazon.com",
+"likes" : 9999
+}
