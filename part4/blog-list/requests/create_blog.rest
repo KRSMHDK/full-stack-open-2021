@@ -1,16 +1,16 @@
 POST http://localhost:3003/api/users/
 content-Type: application/json
 
-# {
-# "title" : "the bad and the good2",
-# "author" : "Sir markus",
-# "url" : "www.amazon.com",
-# "likes" : 99992,
-# "userId" : "60bed3b258c6d32706b33821"
-# }
-
 {
-      "username": "2",
-      "name": "Superuser",
-      "password": "salainen"
+"title" : "the bad and the good22",
+"author" : "Sir markus2",
+"url" : "www.amazon.com",
+"likes" : 99992,
+"userId" : "60bed3b258c6d32706b33821"
 }
+
+# {
+#       "username": "2",
+#       "name": "Superuser",
+#       "password": "salainen"
+# }
