@@ -47,7 +47,6 @@ const App = () => {
   const handleLikes = async (event) => {
     event.preventDefault();
     const id = event.target.value;
-    console.log(blogs);
     const blog = await blogs.find((n) => n.id === id);
     const changedBlog = {
       title: blog.title,
@@ -62,6 +61,18 @@ const App = () => {
     });
   };
 
+  const handleRemove = async (event) => {
+    event.preventDefault();
+    const id = event.target.value;
+    const blog = await blogs.find((n) => n.id === id);
+    if (window.confirm(`remove blog ${blog.title} by ${blog.author}`)) {
+      blogService.remove(id).catch((error) => {
+        console.log(error)
+        setBlogs(blogs.filter((n) => n.id !== id));
+      });
+      setBlogs(blogs.filter((n) => n.id !== id));
+    }
+  };
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
@@ -102,6 +113,7 @@ const App = () => {
               blog={blog}
               user={user}
               handleLikes={handleLikes}
+              handleRemove={handleRemove}
             />
           ))}
         </div>
